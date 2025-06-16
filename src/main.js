@@ -49,6 +49,10 @@ loadMoreBtn.addEventListener('click', async () => {
 
 async function loadImages() {
   showLoader();
+
+  loadMoreBtn.textContent = 'Loading...';
+  loadMoreBtn.disabled = true;
+
   try {
     const data = await fetchImages(currentQuery, currentPage, perPage);
 
@@ -80,12 +84,14 @@ async function loadImages() {
     await waitForImagesToLoad();
     smoothScroll();
 
-    hideLoader();
   } catch (error) {
     iziToast.error({
       message: 'Something went wrong. Please try again later.',
       position: 'topRight',
     });
+  } finally {
+    loadMoreBtn.textContent = 'Load more';
+    loadMoreBtn.disabled = false;
     hideLoader();
   }
 }
@@ -107,7 +113,10 @@ async function waitForImagesToLoad() {
 }
 
 function smoothScroll() {
-  const { height: cardHeight } = gallery.firstElementChild.getBoundingClientRect();
+  const firstCard = gallery.firstElementChild;
+  if (!firstCard) return;
+
+  const { height: cardHeight } = firstCard.getBoundingClientRect();
 
   window.scrollBy({
     top: cardHeight * 2,
